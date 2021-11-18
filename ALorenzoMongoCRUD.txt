@@ -1,0 +1,97 @@
+> show dbs; 
+local  0.000GB
+test   0.000GB
+> show collections 
+> db.create
+db.createCollection(  db.createRole(        db.createUser(
+> db.createCollection("mensajes"); 
+{ "ok" : 1 }
+> db.createCollection("productos");
+{ "ok" : 1 }
+> db.productos.count()
+10
+> db.mensajes.count()
+10
+---------------------------------------------------------------------------------
+> db.mensajes.findOne()
+{
+        "_id" : ObjectId("61965af6332b40cf9544f745"),
+        "user" : "test@test",
+        "date" : ISODate("2021-11-18T13:53:58.614Z"),
+        "msjs" : "Hola Mundo"
+}
+---------------------------------------------------------------------------------
+db.productos.insert([
+{ 
+	"nombre": "Carpeta", 
+	"descripcion": "Carpeta", 
+	"precio": 5990, 
+	"foto": "https://cdn2.iconfinder.com/data/icons/bakery-kitchen-3/512/cheesecake-cake-dessert-512.png", 
+	"codigo": 400, 
+	"stock": 400, 
+	"id": 11, 
+	"ts": new Date() 
+}])
+---------------------------------------------------------------------------------
+> db.productos.find({"nombre": "Carpeta"}).pretty()
+{
+        "_id" : ObjectId("61965b7e332b40cf9544f74f"),
+        "nombre" : "Carpeta",
+        "descripcion" : "Carpeta",
+        "precio" : 5990,
+        "foto" : "https://cdn2.iconfinder.com/data/icons/bakery-kitchen-3/512/cheesecake-cake-dessert-512.png",
+        "codigo" : 400,
+        "stock" : 400,
+        "id" : 11,
+        "ts" : ISODate("2021-11-18T13:56:14.078Z")
+}
+
+---------------------------------------------------------------------------------
+> db.productos.find({"precio": { $lt : 1000}},{"_id": 0, "nombre": 1, "precio": 1})
+{ "nombre" : "Marcador", "precio" : 100 }
+{ "nombre" : "Regla", "precio" : 125 }
+{ "nombre" : "Lapiz", "precio" : 200 }
+{ "nombre" : "Goma", "precio" : 225 }
+{ "nombre" : "Cartuchera", "precio" : 500 }
+{ "nombre" : "Lapicera", "precio" : 550 }
+---------------------------------------------------------------------------------
+db.productos.find({"precio": { $gt : 1000, $lt : 3000 }},{"_id": 0, "nombre": 1, "precio": 1})
+{ "nombre" : "Escuadra", "precio" : 2250 }
+
+---------------------------------------------------------------------------------
+> db.productos.find({"precio": { $gt : 3000 }},{"_id": 0, "nombre": 1, "precio": 1})
+{ "nombre" : "Compas", "precio" : 4320 }
+{ "nombre" : "Tablero", "precio" : 4990 }
+{ "nombre" : "Carpeta", "precio" : 5990 }
+> 
+---------------------------------------------------------------------------------
+> db.productos.find({"precio": {$lt: 110}},{"_id": 0, "nombre": 1 }).sort({ precio : 1}).pretty()
+{ "nombre" : "Marcador" }
+---------------------------------------------------------------------------------
+> db.productos.updateMany({ "stock": 400 }, { $set: {"stock" : 100 }}, {multi: true})
+{ "acknowledged" : true, "matchedCount" : 11, "modifiedCount" : 11 }
+>
+--------------------------------------------------------------------------------- 
+> db.productos.updateMany({ "precio": {$gt: 4000} }, { $set: {"stock" : 0 }}, {multi: true})
+{ "acknowledged" : true, "matchedCount" : 3, "modifiedCount" : 3 }
+---------------------------------------------------------------------------------
+> db.productos.deleteMany({"precio": {$lt: 1000 }})
+{ "acknowledged" : true, "deletedCount" : 6 }
+> 
+---------------------------------------------------------------------------------
+> db.createUser({"user": "pepe", "pwd": "asd456", "roles": [{"role": "read", "db": "ecommerce"}]})
+Successfully added user: {
+        "user" : "pepe",
+        "roles" : [
+                {
+                        "role" : "read",
+                        "db" : "ecommerce"
+                }
+        ]
+}
+---------------------------------------------------------------------------------
+# mongo -u pepe -p asd456 --authenticationDatabase ecommerce
+---------------------------------------------------------------------------------
+db.productos.updateMany({ "precio": {$gt: 4000} }, { $set: {"stock" : 0 }}, {multi: true})
+{ "acknowledged" : true, "matchedCount" : 0, "modifiedCount" : 0 }
+
